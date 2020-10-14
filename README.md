@@ -31,4 +31,5 @@ Changing the size from one billion numbers to one thousand:
 ./gen_stdout | ./bin > binned.dat
 ```
 
+I used a python script called `plot_bins.py` to plot the binned output, and the plot can be seen in the `plots` subdirectory. 
 
