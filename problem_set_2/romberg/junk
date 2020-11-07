@@ -1,0 +1,157 @@
+.c.o:
+	gcc -c $<
+integ : qromb.o polint.o trapzd.o test.o nrutil.o
+	gcc -o integ test.o polint.c trapzd.o qromb.o nrutil.o -lm
+/* Driver for routine qromb */
+
+#include <stdio.h>
+#include <math.h>
+#define NRANSI
+#include "nr.h"
+
+#define PIO2 1.5707963
+
+float z,y;
+
+/* Test function */
+float func(float x)
+{
+	return x*x*(x*x-2.0)*sin(x);
+}
+
+/* Integral of test function func */
+float fint(float x)
+{
+	return 4.0*x*(x*x-7.0)*sin(x)-(pow(x,4.0)-14.0*x*x+28.0)*cos(x);
+}
+
+
+funcx(float x)
+{ float z;
+  thereturnvalue =x;
+   }
+
+funcy(y)
+{  
+   ax =0; 
+   bx = sqrt(9-z*z-y*y);
+   theyint =  qrombx(funcx,ax,bx);
+   
+  }
+
+funcz(float tz)
+{  
+  
+   z = tz; 
+   thezint = qromby(funcy,ay,by);
+  }
+
+int main(void)
+{
+	float a=0.0,b=PIO2,s;
+
+	printf("Integral of func computed with QROMB\n\n");
+	printf("Actual value of integral is %12.6f\n",fint(b)-fint(a));
+	s=qrombz(funcz,a,b);
+	printf("Result from routine QROMB is %11.6f\n",s);
+	return 0;
+}
+#undef NRANSI
+#include <math.h>
+#define EPS 1.0e-6
+#define JMAX 20
+#define JMAXP (JMAX+1)
+#define K 5
+
+float qromb(float (*func)(float), float a, float b)
+{
+	void polintx(float xa[], float ya[], int n, float x, float *y, float *dy);
+	float trapzdx(float (*func)(float), float a, float b, int n);
+	void nrerror(char error_text[]);
+	float ss,dss;
+	float s[JMAXP+1],h[JMAXP+1];
+	int j;
+
+	h[1]=1.0;
+	for (j=1;j<=JMAX;j++) {
+		s[j]=trapzdx(func,a,b,j);
+		if (j >= K) {
+			polintx(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+			if (fabs(dss) < EPS*fabs(ss)) return ss;
+		}
+		s[j+1]=s[j];
+		h[j+1]=0.25*h[j];
+	}
+	nrerror("Too many steps in routine qromb");
+	return 0.0;
+}
+float qrombx(float (*func)(float), float a, float b)
+{
+	void polintx(float xa[], float ya[], int n, float x, float *y, float *dy);
+	float trapzdx(float (*func)(float), float a, float b, int n);
+	void nrerror(char error_text[]);
+	float ss,dss;
+	float s[JMAXP+1],h[JMAXP+1];
+	int j;
+
+	h[1]=1.0;
+	for (j=1;j<=JMAX;j++) {
+		s[j]=trapzdx(func,a,b,j);
+		if (j >= K) {
+			polintx(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+			if (fabs(dss) < EPS*fabs(ss)) return ss;
+		}
+		s[j+1]=s[j];
+		h[j+1]=0.25*h[j];
+	}
+	nrerror("Too many steps in routine qromb");
+	return 0.0;
+}
+float qromby(float (*func)(float), float a, float b)
+{
+	void polinty(float xa[], float ya[], int n, float x, float *y, float *dy);
+	float trapzdy(float (*func)(float), float a, float b, int n);
+	void nrerror(char error_text[]);
+	float ss,dss;
+	float s[JMAXP+1],h[JMAXP+1];
+	int j;
+
+	h[1]=1.0;
+	for (j=1;j<=JMAX;j++) {
+		s[j]=trapzdy(func,a,b,j);
+		if (j >= K) {
+			polinty(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+			if (fabs(dss) < EPS*fabs(ss)) return ss;
+		}
+		s[j+1]=s[j];
+		h[j+1]=0.25*h[j];
+	}
+	nrerror("Too many steps in routine qromb");
+	return 0.0;
+}
+float qrombz(float (*func)(float), float a, float b)
+{
+	void polintz(float xa[], float ya[], int n, float x, float *y, float *dy);
+	float trapzdz(float (*func)(float), float a, float b, int n);
+	void nrerror(char error_text[]);
+	float ss,dss;
+	float s[JMAXP+1],h[JMAXP+1];
+	int j;
+
+	h[1]=1.0;
+	for (j=1;j<=JMAX;j++) {
+		s[j]=trapzdz(func,a,b,j);
+		if (j >= K) {
+			polintz(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+			if (fabs(dss) < EPS*fabs(ss)) return ss;
+		}
+		s[j+1]=s[j];
+		h[j+1]=0.25*h[j];
+	}
+	nrerror("Too many steps in routine qromb");
+	return 0.0;
+}
+#undef EPS
+#undef JMAX
+#undef JMAXP
+#undef K
